@@ -40,6 +40,30 @@ public class GeneralStoreTest {
                 .isDisplayed());
     }
 
+    @Test
+    void shouldOpenCatalogueAfterEnteringName() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        // Находим поле по id из Inspector и вводим имя.
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                AppiumBy.id("com.androidsample.generalstore:id/nameField")))
+                .sendKeys("Test User");
+
+        // Прячем клавиатуру, чтобы она не перекрывала кнопку.
+        if (driver.isKeyboardShown()) {
+            driver.hideKeyboard();
+        }
+
+        wait.until(ExpectedConditions.elementToBeClickable(
+                AppiumBy.id("com.androidsample.generalstore:id/btnLetsShop")))
+                .click();
+
+        // Проверяем результат перехода: видимое название товара в каталоге.
+        assertTrue(wait.until(ExpectedConditions.visibilityOfElementLocated(
+                AppiumBy.id("com.androidsample.generalstore:id/productName")))
+                .isDisplayed());
+    }
+
     @AfterEach
     void disconnectFromAppium() {
         if (driver != null) {
