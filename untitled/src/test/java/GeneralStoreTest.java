@@ -7,8 +7,13 @@ import org.testng.annotations.Test;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Properties;
 
 import static org.testng.Assert.assertTrue;
 
@@ -17,18 +22,26 @@ public class GeneralStoreTest {
 
     @BeforeMethod
     public void connectToAppium() throws Exception {
-        // Те же настройки устройства и приложения, что использовали в Inspector.
+        Properties config = new Properties();
+        try (InputStream stream = getClass().getResourceAsStream("/config.properties")) {
+            if (stream == null) {
+                throw new IOException("Не найден config.properties в ресурсах тестов");
+            }
+            config.load(new InputStreamReader(stream, StandardCharsets.UTF_8));
+        }
+
         UiAutomator2Options options = new UiAutomator2Options()
-                .setDeviceName("Android Emulator")
-                .setUdid("emulator-5554")
-                .setAppPackage("com.androidsample.generalstore")
-                .setAppActivity("com.androidsample.generalstore.SplashActivity")
-                .setAppWaitActivity("com.androidsample.generalstore.*")
-                .setNoReset(true);
+                .setDeviceName(config.getProperty("appium.deviceName"))
+                .setUdid(config.getProperty("appium.udid"))
+                .setAppPackage(config.getProperty("appium.appPackage"))
+                .setAppActivity(config.getProperty("appium.appActivity"))
+                .setAppWaitActivity(config.getProperty("appium.appWaitActivity"))
+                .setNoReset(Boolean.parseBoolean(config.getProperty("appium.noReset")));
 
         // Открываем стартовый экран даже если приложение уже запущено.
-        options.setCapability("appium:forceAppLaunch", true);
-        driver = new AndroidDriver(URI.create("http://127.0.0.1:4723").toURL(), options);
+        options.setCapability("appium:forceAppLaunch",
+                Boolean.parseBoolean(config.getProperty("appium.forceAppLaunch")));
+        driver = new AndroidDriver(URI.create(config.getProperty("appium.server.url")).toURL(), options);
     }
 
     @Test
