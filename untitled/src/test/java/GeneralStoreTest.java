@@ -1,22 +1,22 @@
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.URI;
 import java.time.Duration;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 public class GeneralStoreTest {
     private AndroidDriver driver;
 
-    @BeforeEach
-    void connectToAppium() throws Exception {
+    @BeforeMethod
+    public void connectToAppium() throws Exception {
         // Те же настройки устройства и приложения, что использовали в Inspector.
         UiAutomator2Options options = new UiAutomator2Options()
                 .setDeviceName("Android Emulator")
@@ -32,7 +32,7 @@ public class GeneralStoreTest {
     }
 
     @Test
-    void shouldDisplayNameField() {
+    public void shouldDisplayNameField() {
         // Ждём поле имени до 15 секунд, используя id из Inspector.
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         assertTrue(wait.until(ExpectedConditions.visibilityOfElementLocated(
@@ -41,7 +41,7 @@ public class GeneralStoreTest {
     }
 
     @Test
-    void shouldOpenCatalogueAfterEnteringName() {
+    public void shouldOpenCatalogueAfterEnteringName() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
         // Находим поле по id из Inspector и вводим имя.
@@ -64,10 +64,14 @@ public class GeneralStoreTest {
                 .isDisplayed());
     }
 
-    @AfterEach
-    void disconnectFromAppium() {
+    @AfterMethod(alwaysRun = true)
+    public void disconnectFromAppium() {
         if (driver != null) {
-            driver.quit();
+            try {
+                driver.quit();
+            } finally {
+                driver = null;
+            }
         }
     }
 }
